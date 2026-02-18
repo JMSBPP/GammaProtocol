@@ -1,6 +1,7 @@
 # `MarginCalculator`
 
-Calculator module that checks if a given vault is valid, calculates margin requirements, and settlement proceeds
+Calculator module that checks if a given vault is valid,
+calculates margin requirements, and settlement proceeds
 
 ## Functions:
 

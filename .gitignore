@@ -1,11 +1,22 @@
+# Dependencies
 node_modules/
 build/
-coverage
+
+# Coverage
+coverage/
 coverage.json
+.coverage_contracts/
+.coverage_artifacts/
+
+# Environment files
 .env
-gasReporterOutput.json
 .secret
 .infuraKey
+
+# Gas reporter
+gasReporterOutput.json
+
+# Certora
 specs/.certora_config
 specs/.last_confs
 specs/.certora_build.json
@@ -14,5 +25,13 @@ specs/.certora_verify
 .certora_verify.json
 .certora_config/
 .certora_build.json
-.coverage_contracts/
-.coverage_artifacts/
+
+# Notes directory
+notes/
+
+# Foundry
+cache/
+broadcast/
+
+# Python venv
+venv/
