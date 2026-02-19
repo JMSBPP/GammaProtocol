@@ -4,3 +4,17 @@
 [submodule "lib/ampleforth-contracts"]
 	path = lib/ampleforth-contracts
 	url = https://github.com/ampleforth/ampleforth-contracts
+[submodule "lib/v3-periphery"]
+	path = lib/v3-periphery
+	url = https://github.com/Uniswap/v3-periphery
+	branch = 0.8
+[submodule "lib/v3-core"]
+	path = lib/v3-core
+	url = https://github.com/Uniswap/v3-core
+	branch = 0.8
+[submodule "lib/foundational-hooks"]
+	path = lib/foundational-hooks
+	url = https://github.com/uniswapFoundation/foundational-hooks
+[submodule "lib/solady"]
+	path = lib/solady
+	url = https://github.com/vectorized/solady

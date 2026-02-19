@@ -1,0 +1,42 @@
+[profile.default]
+src = "contracts"
+out = "out"
+libs = ["lib"]
+test= "foundry-test"
+ffi=true
+
+
+# add via_ir profile
+# additional_compiler_profiles = [ { name = "via-ir", via_ir = true } ]
+
+# enforce compiling tests without via_ir and only some heavy contract with via_ir
+# note: it will only work if tests are using vm.deployCode to deploy contract
+
+skip = [
+     "foundry-test/protocol-interfaces/MarginCalculatorInterface.sol"
+]
+
+fs_permissions = [
+    { access = "read", path = "./out" },
+    { access = "read", path = "./broadcast"},
+    { access = "read", path = "./reports" },
+]
+
+compilation_restrictions = [
+    { paths = "foundry-test/**", solc_version = ">=0.8.0" },
+    { paths = "contracts/**", solc_version = "=0.6.10"},
+]
+
+include_paths = [
+	      "./contracts/**"	      
+]
+
+remappings = [
+	   "@uniswap/v3-core/=lib/v3-core/",
+	   "@uniswap/hooks-utils/=lib/foundational-hooks/src/",
+	   "solady/=lib/solady/src/"
+]
+
+
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
