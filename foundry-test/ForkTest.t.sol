@@ -7,11 +7,15 @@ import {Test, Vm, console2} from "forge-std/Test.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {AddressBookInterface} from "./protocol-interfaces/AddressBookInterface.sol";
 import {WhitelistInterface} from "./protocol-interfaces/WhitelistInterface.sol";
+import {MarginPoolInterface} from "./protocol-interfaces/MarginPoolInterface.sol";
+import {MarginCalculatorInterface} from "./protocol-interfaces/MarginCalculatorInterface.sol";
+import {OracleInterface} from "./protocol-interfaces/OracleInterface.sol";
 // import {ControllerInterface} from "./protocol-interfaces/ControllerInterface.sol";
 import {IUniswapV3Factory} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import {IUniswapV3Pool} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import {SqrtPriceLibrary} from "@uniswap/hooks-utils/libraries/SqrtPriceLibrary.sol"; 
 import {FullMath} from "@uniswap/v3-core/contracts/libraries/FullMath.sol";
+import {UniswapV3OpynPricerAdapter} from "./UniswapV3OpynPricerAdapter.sol";
 
 contract ForkTest is Test{
 // 22 JAN 1 USD = 
@@ -41,6 +45,11 @@ contract ForkTest is Test{
 	AddressBookInterface addressBook;
 	WhitelistInterface whitelist;
 	address optionTokenFactory;
+	OracleInterface oracle;
+	MarginCalculatorInterface marginCalculator;
+	UniswapV3OpynPricerAdapter copPricer;
+	MarginPoolInterface marginPool;
+	
 //	ControllerInterface controller;
 
 	function setUp() public {
@@ -75,9 +84,33 @@ contract ForkTest is Test{
 		  assert(optionTokenFactory.code.length > uint256(0x00));
 
 		  addressBook.setOtokenFactory(optionTokenFactory);
+		  if (address(oracle).code.length == uint256(0x00)){
+		     oracle = OracleInterface(
+		     	    vm.deployCode(
+				"Oracle.sol"
+			    )
+		     );
+		  }
 
-		  COP_USD = FACTORY_V3.getPool(address(STABLE_USD),address(COP), 100);
+		  assert(address(oracle).code.length > uint256(0x00));
+		  copPricer = new UniswapV3OpynPricerAdapter(
+		      address(COP),
+		      address(STABLE_USD),
+		      address(FACTORY_V3),
+		      address(oracle)
+		  );
 
+		   
+		  if (address(marginPool).code.length == uint256(0x00)){
+		     marginPool = MarginPoolInterface(
+		     	vm.deployCode("BorrowableMarginPool.sol", abi.encode(address(addressBook)))
+		     );
+		  }
+
+		  assert(address(marginPool).code.length > uint256(0x00));
+
+		  addressBook.setOracleImpl(address(oracle));
+		  oracle.setAssetPricer(address(COP), address(copPricer));
 		 
 		  // if (address(controller).code.length == uint256(0x00)){
 		  //   controller = ControllerInterface(
@@ -133,12 +166,22 @@ contract ForkTest is Test{
 	 	  _approveCollateral();
 
 		  //=========TEST============
-	    optionTokenFactory.call(abi.encodeWithSignature("createOtoken(address,address,address,uint256,uint256,bool)", address(COP), address(STABLE_USD), address(COP), wadSpotPriceFeb06, FEB_06_UNIX, CALL));
+	    optionTokenFactory.call(
+		abi.encodeWithSignature("createOtoken(address,address,address,uint256,uint256,bool)",
+		address(COP),  // underlying
+		address(STABLE_USD), // strikeAsset
+		address(COP),  // collateral -> Covered Call
+		wadSpotPriceFeb06,
+		FEB_06_UNIX,
+		CALL)
+	     );
+
+	     // Each oToken is worth a promise of wadSpotPriceFeb06 COP units at expiry. 
 	 }
 
-	 function test_placeHolder() external{}
-
-
+	 // Since the option is written, we now need to short it, this is have a market maker
+	 // buy it, Then we provide liquidity on Uniswap V4. Such that the position is equivalent
+	 // to the option written
 
 
 

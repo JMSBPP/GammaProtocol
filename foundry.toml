@@ -33,6 +33,7 @@ include_paths = [
 
 remappings = [
 	   "@uniswap/v3-core/=lib/v3-core/",
+	   "@uniswap/v3-periphery/=lib/v3-periphery/",
 	   "@uniswap/hooks-utils/=lib/foundational-hooks/src/",
 	   "solady/=lib/solady/src/"
 ]
